@@ -74,7 +74,7 @@ int main (int argc, char **argv)
 	struct rte_eth_dev_info dev_info;
 	const uint16_t rx_rings = 1, tx_rings = 2;
 	struct rte_mbuf * rx_pkts[16];
-	int target = 0, totall = 0;
+	int target = 0, total = 0;
 
 	/* Initiate RTE EAL */
 	ret = rte_eal_init(argc, argv);
