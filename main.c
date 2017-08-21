@@ -74,12 +74,19 @@ int main (int argc, char **argv)
 	struct rte_eth_dev_info dev_info;
 	const uint16_t rx_rings = 1, tx_rings = 2;
 	struct rte_mbuf * rx_pkts[16];
-	int target = 0, total = 0;
+	int target = 0, total = 0, val;
 
 	/* Initiate RTE EAL */
 	ret = rte_eal_init(argc, argv);
 	if (ret < 0)
 		rte_exit(EXIT_FAILURE, "rte_eal_init failed\n");
+
+	if (argc >= 3 || argc <= 1)
+		rte_exit(EXIT_FAILURE, "Example: ./mcast 0xb1 or ./mcast b1\n");
+
+	val = strtoul(argv[1], NULL, 16);
+	if (val > 0xff)
+		rte_exit(EXIT_FAILURE, "The value should be between 0x0 to 0xff\n");
 
 	/* Get current DPDK device ports */
 	nb_ports = rte_eth_dev_count();
@@ -152,9 +159,8 @@ int main (int argc, char **argv)
 					{
 						/* Do nothing for broadcast packet */
 					} else {
-						//rte_pktmbuf_dump(stdout, mbuf, rte_pktmbuf_data_len(mbuf));
-						key = rte_crtlmbuf_data(mbuf);
-						if (key[PHY_HEADER_LEN + IPV4_HEADER_LEN] == 0x1B)
+						key = rte_ctrlmbuf_data(mbuf);
+						if (key[PHY_HEADER_LEN + IPV4_HEADER_LEN] == val)
 							target++;
 					}
 					rte_pktmbuf_free(mbuf);
