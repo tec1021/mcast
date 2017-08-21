@@ -53,6 +53,9 @@
 #include "rte_arp.h"
 #include "rte_ip.h"
 
+#define PHY_HEADER_LEN 14
+#define	IPV4_HEADER_LEN 20
+
 const int MBUF_SIZE = 4096;
 const int MBUF_CACHE_SIZE = 512;
 const int NUM_MBUFS = 16 * 1024;
@@ -71,6 +74,7 @@ int main (int argc, char **argv)
 	struct rte_eth_dev_info dev_info;
 	const uint16_t rx_rings = 1, tx_rings = 2;
 	struct rte_mbuf * rx_pkts[16];
+	int target = 0, totall = 0;
 
 	/* Initiate RTE EAL */
 	ret = rte_eal_init(argc, argv);
@@ -136,9 +140,11 @@ int main (int argc, char **argv)
 		pkt_count = rte_eth_rx_burst(0, 0, rx_pkts, 16);
 		if (pkt_count > 0)
 		{
+			total += pkt_count;
 			for (i = 0; i < pkt_count; ++i)
 			{
 				struct rte_mbuf *mbuf = rx_pkts[i];
+				char *key;
 				ea = rte_pktmbuf_mtod(mbuf, struct ether_addr *);
 				if (is_multicast_ether_addr(ea))
 				{
@@ -146,12 +152,16 @@ int main (int argc, char **argv)
 					{
 						/* Do nothing for broadcast packet */
 					} else {
-						rte_pktmbuf_dump(stdout, mbuf, rte_pktmbuf_data_len(mbuf));
+						//rte_pktmbuf_dump(stdout, mbuf, rte_pktmbuf_data_len(mbuf));
+						key = rte_crtlmbuf_data(mbuf);
+						if (key[PHY_HEADER_LEN + IPV4_HEADER_LEN] == 0x1B)
+							target++;
 					}
 					rte_pktmbuf_free(mbuf);
 					rx_pkts[i] = 0;
 				}
 			}
+			printf("Total packets received: %d, Target packets received: %d\n", total, target);
 		}
 	}
 
