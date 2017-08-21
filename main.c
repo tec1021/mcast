@@ -65,7 +65,7 @@ struct rte_mempool *mbuf_pool;
 int main (int argc, char **argv)
 {
 	int ret, nb_ports, pkt_count;
-	int i, j, k;
+	int i, j;
 	struct ether_addr *ea;
 	struct rte_eth_conf port_conf;
 	struct rte_eth_dev_info dev_info;
@@ -113,7 +113,10 @@ int main (int argc, char **argv)
 			ret = rte_eth_rx_queue_setup(i, j, RX_RING_SIZE, rte_eth_dev_socket_id(i), NULL, mbuf_pool);
 			if (ret < 0)
 				rte_exit(EXIT_FAILURE, "Failed on rte_eth_rx_queue_setup\n");
+		}
 
+		for (j = 0; j < tx_rings; j++)
+		{
 			/* Configure TX queue */
 			ret = rte_eth_tx_queue_setup(i, j, TX_RING_SIZE, rte_eth_dev_socket_id(i), NULL);
 			if (ret < 0)
