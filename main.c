@@ -76,6 +76,8 @@ int main (int argc, char **argv)
 	struct rte_mbuf * rx_pkts[16];
 	int target = 0, total = 0, val;
 
+	rte_log_set_global_level(RTE_LOG_EMERG);
+
 	/* Initiate RTE EAL */
 	ret = rte_eal_init(argc, argv);
 	if (ret < 0)
